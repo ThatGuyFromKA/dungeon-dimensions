@@ -1,8 +1,58 @@
 
-void setup() {
-  
+HashMap<Character, Boolean> keys = new HashMap<Character, Boolean>();
+
+void keyPressed() {
+  keys.put(Character.toLowerCase(key), true);
+};
+
+void keyReleased() {
+  keys.put(Character.toLowerCase(key), false);
 }
 
-void draw() {
-  
+class Player{
+  int x;
+  int y;
+  int w;
+  int h;
+  public Player(int xPos, int yPos) {
+    x = xPos;
+    y = yPos;
+    w = 40;
+    h = 40;
+  }
+  public void draw() {
+    noStroke();
+    fill(255, 0, 0);
+    rect(x - w/2, y - h/2, w, h);
+  }
+  public void update() {
+    if(keys.get('w') == true) {
+      y--;
+    }
+    if(keys.get('a') == true) {
+      x--;
+    } 
+    if(keys.get('s') == true) {
+      y++;
+    }
+    if(keys.get('d') == true) {
+      x++;
+    }
+  }
+}
+
+Player player = new Player(200, 200);
+
+void setup() {
+  size(600, 600);
+  keys.put('w', false);
+  keys.put('a', false);
+  keys.put('s', false);
+  keys.put('d', false);
+}
+
+void draw () {
+  background(255);
+  player.update();
+  player.draw();
 }
