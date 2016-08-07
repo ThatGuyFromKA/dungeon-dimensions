@@ -1,13 +1,43 @@
+/*Changelog:
+v0.0.1: Player with movement
+v0.0.2: Added collisions with blocks
+v0.0.3: Improved collisions, optimized for different width and height
+v0.0.4: 
+*/
 
-HashMap<Character, Boolean> keys = new HashMap<Character, Boolean>();
+HashMap<Integer, Boolean> keys = new HashMap<Integer, Boolean>();
 
 void keyPressed() {
-  keys.put(Character.toLowerCase(key), true);
+  keys.put(Character.toLowerCase(keyCode), true);
 };
 
 void keyReleased() {
-  keys.put(Character.toLowerCase(key), false);
+  keys.put(Character.toLowerCase(keyCode), false);
 }
+
+boolean rectCollision(int x1, int y1,  int w1, int h1, int x2, int y2, int w2, int h2) {
+  return abs(x1 - x2) * 2 <= w1 + w2 && abs(y1 - y2) * 2 <= h1 + h2;
+}
+
+class Block {
+  int x;
+  int y;
+  int w;
+  int h;
+  public Block(int xPos, int yPos, int width, int height) {
+    x = xPos;
+    y = yPos;
+    w = width;
+    h = height;
+  }
+  public void draw() {
+    noStroke();
+    fill(0, 0, 0);
+    rect(x - w/2, y - h/2, w, h);
+  }
+}
+
+ArrayList<Block> blocks = new ArrayList<Block>();
 
 class Player{
   int x;
@@ -25,34 +55,122 @@ class Player{
     fill(255, 0, 0);
     rect(x - w/2, y - h/2, w, h);
   }
+  public boolean colliding(Block that) {
+    return rectCollision(x, y, w, h, that.x, that.y, that.w, that.h);
+  }
+  public boolean blockToNorth() {
+    for(Block that: blocks) {
+      if(colliding(that)) {
+        if(abs(that.x - x)/(w/2 + that.w/2) < abs(that.y - y)/(h/2 + that.h/2) && y > that.y) {
+          //y = that.y + h/2 + that.h/2;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  public boolean blockToWest() {
+    for(Block that: blocks) {
+      if(colliding(that)) {
+        if(abs(that.x - x)/(w/2 + that.w/2) > abs(that.y - y)/(h/2 + that.h/2) && x > that.x) {
+          //x = that.x + w/2 + that.w/2;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  public boolean blockToSouth() {
+    for(Block that: blocks) {
+      if(colliding(that)) {
+        if(abs(that.x - x)/(w/2 + that.w/2) < abs(that.y - y)/(h/2 + that.h/2) && y < that.y) {
+          //y = that.y - h/2 - that.h/2;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  public boolean blockToEast() {
+    for(Block that: blocks) {
+      if(colliding(that)) {
+        if(abs(that.x - x)/(w/2 + that.w/2) > abs(that.y - y)/(h/2 + that.h/2) && x < that.x) {
+          //x = that.x - w/2 - that.w/2;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
   public void update() {
-    if(keys.get('w') == true) {
-      y--;
+    if(keys.get(38) == true && !blockToNorth()) {
+      y -= 4;
     }
-    if(keys.get('a') == true) {
-      x--;
+    if(keys.get(37) == true && !blockToWest()) {
+      x -= 4;
     } 
-    if(keys.get('s') == true) {
-      y++;
+    if(keys.get(40) == true && !blockToSouth()) {
+      y += 4;
     }
-    if(keys.get('d') == true) {
-      x++;
+    if(keys.get(39) == true && !blockToEast()) {
+      x += 4;
     }
   }
 }
 
 Player player = new Player(200, 200);
 
+void buildLevel (int[][] level) {
+  for(int y = 0;y < level.length;y++){
+    for(int x = 0;x < level.length;x++){
+      switch(level[y][x]) {
+        case 1: blocks.add(new Block(x * 40, y * 40, 40, 40));
+      }
+    }
+  }
+}
+
+int[][][] levels = {
+  {
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  }
+};
+
 void setup() {
-  size(600, 600);
-  keys.put('w', false);
-  keys.put('a', false);
-  keys.put('s', false);
-  keys.put('d', false);
+  size(800, 800);
+  keys.put(38, false);
+  keys.put(37, false);
+  keys.put(40, false);
+  keys.put(39, false);
+  buildLevel(levels[0]);
 }
 
 void draw () {
   background(255);
   player.update();
   player.draw();
+  for(Block block: blocks) {
+    block.draw();
+  }
+  println(int(frameRate));
 }
