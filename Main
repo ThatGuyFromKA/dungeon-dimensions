@@ -34,10 +34,18 @@ boolean colliding(float x1, float y1, int w1, int h1, float x2, float y2, int w2
   return abs(x1 - x2) * 2 < w1 + w2 && abs(y1 - y2) * 2 < h1 + h2;
 }
 
-class Block{
+class Tile {
   PVector pos;
   int width;
   int height;
+  public void draw() {
+    noStroke();
+    fill(0);
+    rect(pos.x - width/2, pos.y - height/2, width, height);
+  }
+}
+
+class Block extends Tile {
   public Block(int x, int y, int w, int h) {
     pos = new PVector(x, y);
     width = w;
@@ -52,9 +60,30 @@ class Block{
     fill(0);
     rect(pos.x - width/2, pos.y - height/2, width, height);
   }
+  public String type() {
+    return "block";
+  }
+}
+
+class Spikes extends Tile {
+  public Spikes(int x, int y, int w, int h) {
+    pos = new PVector(x, y);
+    width = w;
+    height = h;
+  }
+  public Spikes(int x, int y) {
+    pos = new PVector(x, y);
+    width = height = 40;
+  }
+  public void draw() {
+    noStroke();
+    fill(150);
+    rect(pos.x - width/2, pos.y - height/2, width, height);
+  }
 }
 
 ArrayList<Block> blocks = new ArrayList<Block>();
+ArrayList<Spikes> spikes = new ArrayList<Spikes>();
 
 class Player{
   PVector pos;
@@ -90,6 +119,31 @@ class Player{
             pos.y = that.pos.y + height/2 + that.height/2;
           }
           if(pos.y < that.pos.y) {
+            pos.y = that.pos.y - height/2 - that.height/2;
+          }
+        }
+      }
+    }
+    for(Spikes that: spikes) {
+      if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
+        health -= 15;
+        if(abs(pos.x - that.pos.x)/(width + that.width) > abs(pos.y - that.pos.y)/(height + that.height)) {
+          if(pos.x > that.pos.x) {
+            vel.x = 9;
+            pos.x = that.pos.x + width/2 + that.width/2;
+          }
+          if(pos.x < that.pos.x) {
+            vel.x = -9;
+            pos.x = that.pos.x - width/2 - that.width/2;
+          }
+        }
+        else if(abs(pos.x - that.pos.x)/(width + that.width) < abs(pos.y - that.pos.y)/(height + that.height)) {
+          if(pos.y > that.pos.y) {
+            vel.y = 9;
+            pos.y = that.pos.y + height/2 + that.height/2;
+          }
+          if(pos.y < that.pos.y) {
+            vel.y = -9;
             pos.y = that.pos.y - height/2 - that.height/2;
           }
         }
@@ -137,7 +191,7 @@ int[][][][] levels = {
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
-      {0,0,0,0,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,1,1,2,0,2,1,1,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -158,7 +212,7 @@ int[][][][] levels = {
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,1,2,2,1,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0},
@@ -181,6 +235,7 @@ void buildLevel(int level) {
     for(int x = 0;x < levels[level][lvl][y].length;x++) {
       switch(levels[level][lvl][y][x]) {
         case 1: blocks.add(new Block(x * 40 + 20, y * 40 + 20)); break;
+        case 2: spikes.add(new Spikes(x * 40 + 20, y * 40 + 20)); break;
       }
     }
   }
@@ -199,6 +254,9 @@ void draw() {
   background(255);
   player.display();
   for(Block that: blocks) {
+    that.draw();
+  }
+  for(Spikes that: spikes) {
     that.draw();
   }
 }
