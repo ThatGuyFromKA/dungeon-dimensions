@@ -185,11 +185,10 @@ class Player{
     if(keys.get(39)) {
       vel.x += 0.4;
     }
-    
     if (hurtTimer > 0) {
       hurtTimer--;
     }
-    
+    pos.set(constrain(pos.x, -300 + width/2, 300 - width/2), constrain(pos.y, -300 + height/2, 300 - height/2));
   }
   public void display() {
     runCollisions();
@@ -253,8 +252,8 @@ void buildLevel(int level) {
 }
 
 void setup() {
-  size(800, 600);
-  player = new Player(width/2 - 200, height/2 - 200);
+  fullScreen();
+  player = new Player(-200, -200);
   keys.put(37, false);
   keys.put(38, false);
   keys.put(39, false);
@@ -263,10 +262,13 @@ void setup() {
 }
 
 void draw() {
-  background(100);
+  background(0);
   pushMatrix();
   translate(width/2, height/2);
-  scale(width/800, height/600);
+  scale(0.1);
+  scale(0.1);
+  int s = min(width/8, height/6);
+  scale(s);
   fill(255);
   noStroke();
   rect(-300, -300, 600, 600);
@@ -285,9 +287,4 @@ void draw() {
     noLoop();
   }
   popMatrix();
-  fill(0);
-  rect(0, 0, 100, height);
-  rect(width-100, 0, 100, height);
 }
-
-
