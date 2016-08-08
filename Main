@@ -242,7 +242,7 @@ void buildLevel(int level) {
 }
 
 void setup() {
-  size(800, 800);
+  size(600, 600);
   keys.put(37, false);
   keys.put(38, false);
   keys.put(39, false);
