@@ -1,186 +1,160 @@
-/*Changelog:
-v0.0.1: Player with movement
-v0.0.2: Added collisions with blocks
-v0.0.3: Improved collisions, optimized for different width and height
-v0.0.4: Added velocities. Glitch - Sometimes player will randomly move through blocks.
-*/
-
 HashMap<Integer, Boolean> keys = new HashMap<Integer, Boolean>();
 
-void keyPressed() {
-  keys.put(Character.toLowerCase(keyCode), true);
-};
-
+void keyPressed () {
+  keys.put(keyCode, true);
+}
 void keyReleased() {
-  keys.put(Character.toLowerCase(keyCode), false);
+  keys.put(keyCode, false);
 }
 
-boolean rectCollision(float x1, float y1,  int w1, int h1, int x2, int y2, int w2, int h2) {
-  return abs(x1 - x2) * 2 <= w1 + w2 && abs(y1 - y2) * 2 <= h1 + h2;
+boolean colliding(float x1, float y1, int w1, int h1, float x2, float y2, int w2, int h2) {
+  return abs(x1 - x2) * 2 < w1 + w2 && abs(y1 - y2) * 2 < h1 + h2;
 }
 
-class Block {
-  int x;
-  int y;
-  int w;
-  int h;
-  public Block(int xPos, int yPos, int width, int height) {
-    x = xPos;
-    y = yPos;
-    w = width;
-    h = height;
+class Block{
+  PVector pos;
+  int width;
+  int height;
+  public Block(int x, int y, int w, int h) {
+    pos = new PVector(x, y);
+    width = w;
+    height = h;
+  }
+  public Block(int x, int y) {
+    pos = new PVector(x, y);
+    width = height = 40;
   }
   public void draw() {
     noStroke();
-    fill(0, 0, 0);
-    rect(x - w/2, y - h/2, w, h);
+    fill(0);
+    rect(pos.x - width/2, pos.y - height/2, width, height);
   }
 }
 
 ArrayList<Block> blocks = new ArrayList<Block>();
 
 class Player{
-  float x;
-  float y;
-  float velX;
-  float velY;
-  int w;
-  int h;
-  public Player(int xPos, int yPos) {
-    x = xPos;
-    y = yPos;
-    w = 40;
-    h = 40;
+  PVector pos;
+  PVector vel;
+  int width;
+  int height;
+  int health = 100;
+  public Player() {
+    pos = new PVector(200, 200);
+    vel = new PVector(0, 0);
+    width = height = 40;
+  }
+  public Player(int x, int y) {
+    pos = new PVector(x, y);
+    vel = new PVector(0, 0);
+    width = height = 40;
+  }
+  public void runCollisions() {
+    for(Block that: blocks) {
+      if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
+        if(abs(pos.x - that.pos.x)/(width + that.width) > abs(pos.y - that.pos.y)/(height + that.height)) {
+          vel.x = 0;
+          if(pos.x > that.pos.x) {
+            pos.x = that.pos.x + width/2 + that.width/2;
+          }
+          if(pos.x < that.pos.x) {
+            pos.x = that.pos.x - width/2 - that.width/2;
+          }
+        }
+        else if(abs(pos.x - that.pos.x)/(width + that.width) < abs(pos.y - that.pos.y)/(height + that.height)) {
+          vel.y = 0;
+          if(pos.y > that.pos.y) {
+            pos.y = that.pos.y + height/2 + that.height/2;
+          }
+          if(pos.y < that.pos.y) {
+            pos.y = that.pos.y - height/2 - that.height/2;
+          }
+        }
+      }
+    }
   }
   public void draw() {
     noStroke();
     fill(255, 0, 0);
-    rect(x - w/2, y - h/2, w, h);
+    rect(pos.x - width/2, pos.y - height/2, width, height);
   }
-  public boolean colliding(Block that) {
-    return rectCollision(x, y, w, h, that.x, that.y, that.w, that.h);
-  }
-  public boolean blockToNorth() {
-    for(Block that: blocks) {
-      if(colliding(that)) {
-        if(abs(that.x - x)/(w/2 + that.w/2) < abs(that.y - y)/(h/2 + that.h/2) && y > that.y) {
-          y = that.y + h/2 + that.h/2;
-          velY = 0;
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-  public boolean blockToWest() {
-    for(Block that: blocks) {
-      if(colliding(that)) {
-        if(abs(that.x - x)/(w/2 + that.w/2) > abs(that.y - y)/(h/2 + that.h/2) && x > that.x) {
-          x = that.x + w/2 + that.w/2;
-          velX = 0;
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-  public boolean blockToSouth() {
-    for(Block that: blocks) {
-      if(colliding(that)) {
-        if(abs(that.x - x)/(w/2 + that.w/2) < abs(that.y - y)/(h/2 + that.h/2) && y < that.y) {
-          y = that.y - h/2 - that.h/2;
-          velY = 0;
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-  public boolean blockToEast() {
-    for(Block that: blocks) {
-      if(colliding(that)) {
-        if(abs(that.x - x)/(w/2 + that.w/2) > abs(that.y - y)/(h/2 + that.h/2) && x < that.x) {
-          x = that.x - w/2 - that.w/2;
-          velX = 0;
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-  
   public void update() {
-    if(keys.get(38) == true && !blockToNorth()) {
-      velY -= 0.3;
+    vel.mult(0.9);
+    pos.add(vel);
+    if(keys.get(38)) {
+      vel.y -= 0.4;
     }
-    if(keys.get(37) == true && !blockToWest()) {
-      velX -= 0.3;
-    } 
-    if(keys.get(40) == true && !blockToSouth()) {
-      velY += 0.3;
+    if(keys.get(37)) {
+      vel.x -= 0.4;
     }
-    if(keys.get(39) == true && !blockToEast()) {
-      velX += 0.3;
+    if(keys.get(40)) {
+      vel.y += 0.4;
     }
-    x+=velX;
-    y+=velY;
-    velX/=1.1;
-    velY/=1.1;
+    if(keys.get(39)) {
+      vel.x += 0.4;
+    }
+  }
+  public void display() {
+    runCollisions();
+    update();
+    draw();
   }
 }
 
 Player player = new Player(200, 200);
 
-void buildLevel (int[][] level) {
-  for(int y = 0;y < level.length;y++){
-    for(int x = 0;x < level.length;x++){
-      switch(level[y][x]) {
-        case 1: blocks.add(new Block(x * 40, y * 40, 40, 40));
+int[][][][] levels = {
+  {
+    {
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    }
+  }
+};
+
+void buildLevel(int level) {
+  int lvl = floor(random(levels[level].length));
+  for(int y = 0;y < levels[level][lvl].length;y++) {
+    for(int x = 0;x < levels[level][lvl][y].length;x++) {
+      switch(levels[level][lvl][y][x]) {
+        case 1: blocks.add(new Block(x * 40 + 20, y * 40 + 20)); break;
       }
     }
   }
 }
 
-int[][][] levels = {
-  {
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-  }
-};
-
 void setup() {
-  size(800, 600);
-  keys.put(38, false);
+  size(800, 800);
   keys.put(37, false);
-  keys.put(40, false);
+  keys.put(38, false);
   keys.put(39, false);
-  buildLevel(levels[0]);
+  keys.put(40, false);
+  buildLevel(0);
 }
 
-void draw () {
+void draw() {
   background(255);
-  player.update();
-  player.draw();
-  for(Block block: blocks) {
-    block.draw();
+  player.display();
+  for(Block that: blocks) {
+    that.draw();
   }
-  println(int(frameRate));
 }
+
