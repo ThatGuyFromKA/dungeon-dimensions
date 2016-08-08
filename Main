@@ -82,6 +82,10 @@ class Spikes extends Tile {
   }
 }
 
+class Hole extends Tile {
+  
+}
+
 ArrayList<Block> blocks = new ArrayList<Block>();
 ArrayList<Spikes> spikes = new ArrayList<Spikes>();
 
@@ -243,6 +247,7 @@ void buildLevel(int level) {
 
 void setup() {
   size(800, 600);
+  surface.setResizable(true);
   keys.put(37, false);
   keys.put(38, false);
   keys.put(39, false);
@@ -258,6 +263,10 @@ void draw() {
   }
   for(Spikes that: spikes) {
     that.draw();
+  }
+  if(player.health <= 0){
+    background(255, 0, 0);
+    noLoop();
   }
 }
 
