@@ -47,9 +47,8 @@ class Spikes extends Tile {
     width = height = 40;
   }
   public void draw() {
-    noStroke();
-    fill(150);
-    rect(pos.x - width/2, pos.y - height/2, width, height);
+    imageMode(CENTER);
+    image(spike, pos.x, pos.y-2.5, width, height+5);
   }
 }
 
@@ -272,6 +271,7 @@ void setup() {
   keys.put(39, false);
   keys.put(40, false);
   buildLevel(0);
+  noSmooth();
 }
 
 void draw() {
