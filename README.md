@@ -1,5 +1,5 @@
 # Dungeon Dimensions
-Dungeon Dimensions is a binding of isaac-like dungeon crawler, in development by Compound Coding.
+Dungeon Dimensions is a Binding of Isaac-like dungeon crawler, in development by Compound Coding.
 # Members
 1. Junha Lee
 2. Max van der Veen
