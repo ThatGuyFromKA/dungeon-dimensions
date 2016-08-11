@@ -6,3 +6,4 @@ Dungeon dimensions is a binding of isaac-like dungeon crawler, in development by
 3. Evan Silverman
 4. Simon Chase
 5. Thomas Li
+6. Ethan Graham Cannoy
