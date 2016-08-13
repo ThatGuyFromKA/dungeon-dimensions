@@ -169,7 +169,7 @@ class Player{
     fill(255, 0, 0, (hurtTimer%20 < 10) ? 255 : 100);
     rect(pos.x - width/2, pos.y - height/2, width, height);
     fill(214, 17, 17);
-    rect(40, 40, health, 15);
+    rect(-285, -285, health, 15);
   }
   public void update() {
     vel.mult(0.9);
