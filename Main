@@ -81,18 +81,22 @@ class Enemy {
 class SpikeGuy extends Enemy {
   public SpikeGuy(int x, int y, int spd, float dmg2) {
     pos = new PVector(x, y);
+    image(spikeGuy, pos.x, pos.y, 40, 40);
   }
   public SpikeGuy(int x, int y, int spd){
     pos = new PVector(x, y);
     dmg2 = 1;
+    image(spikeGuy, pos.x, pos.y, 40, 40);
   }
   public SpikeGuy(int x, int y, float dmg2){
     pos = new PVector(x, y);
+    image(spikeGuy, pos.x, pos.y, 40, 40);
   }
   public SpikeGuy(int x, int y){
     pos = new PVector(x, y);
     dmg2 = 1;
     spd = 1;
+    image(spikeGuy, pos.x, pos.y, 40, 40);
   }
 }
 
