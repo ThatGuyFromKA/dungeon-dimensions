@@ -108,13 +108,13 @@ class BloodyBanana extends Enemy {
       image(bb1, pos.x, pos.y, 50, 50);
     }
     if(curImg == 2){
-      image(bb2, pos.x, pos.y, 50, 50);
+      image(bb1, pos.x, pos.y, 50, 50);
     }
     if(curImg == 3){
-      image(bb3, pos.x, pos.y, 50, 50);
+      image(bb1, pos.x, pos.y, 50, 50);
     }
     if(curImg == 4){
-      image(bb4, pos.x, pos.y, 50, 50);
+      image(bb1, pos.x, pos.y, 50, 50);
     }
   }
   public void update() {
@@ -272,7 +272,7 @@ Player player;
 int[][][][] levels = {
   {
     {
-      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {5,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,1,1,0,0,0,0,0,0},
@@ -289,7 +289,7 @@ int[][][][] levels = {
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
     },
     {
-      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {5,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -316,6 +316,8 @@ void buildLevel(int level) {
         case 1: blocks.add(new Block(x * 40 - 280, y * 40 - 280)); break;
         case 2: spikes.add(new Spikes(x * 40 - 280, y * 40 - 280)); break;
         case 3: holes.add(new Hole(x * 40 - 280, y * 40 - 280)); break;
+        case 4: spikeGuys.add(new SpikeGuy(x * 40 - 280, y * 40 - 280));
+        case 5: bloodyBananas.add(new BloodyBanana(x * 40 - 280, y * 40 - 280));
       }
     }
   }
@@ -372,6 +374,13 @@ void draw() {
   }
   for(Hole that: holes) {
     that.draw();
+  }
+  for(SpikeGuy that: spikeGuys){
+    that.draw();
+  }
+  for(BloodyBanana that: bloodyBananas){
+    that.draw();
+    that.update();
   }
   if(player.health <= 0){
     background(255, 0, 0);
