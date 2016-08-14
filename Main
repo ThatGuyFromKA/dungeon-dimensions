@@ -79,28 +79,34 @@ class Enemy {
 }
 
 class SpikeGuy extends Enemy {
-  public SpikeGuy(int x, int y, int spd, float dmg2) {
+  public SpikeGuy(int x, int y, int spd) {
     pos = new PVector(x, y);
     image(spikeGuy, pos.x, pos.y, 40, 40);
   }
   public SpikeGuy(int x, int y, int spd){
     pos = new PVector(x, y);
-    dmg2 = 1;
     image(spikeGuy, pos.x, pos.y, 40, 40);
   }
-  public SpikeGuy(int x, int y, float dmg2){
+  public SpikeGuy(int x, int y){
     pos = new PVector(x, y);
     image(spikeGuy, pos.x, pos.y, 40, 40);
   }
   public SpikeGuy(int x, int y){
     pos = new PVector(x, y);
-    dmg2 = 1;
     spd = 1;
     image(spikeGuy, pos.x, pos.y, 40, 40);
   }
 }
 
+class BloodyBanana extends Enemy {
+  public BloodyBananaa(int x, int y, int spd){
+    pos = new PVector(x, y);
+    image(bb1, pos.x, pos.y, 50, 50);
+  }
+}
+
 ArrayList<SpikeGuy> spikeGuys = new ArrayList<SpikeGuy>();
+ArrayList<BloodyBanana> bloodyBananas = new ArrayList<BloodyBanana>();
 
 class Player{
   PVector pos;
@@ -285,6 +291,7 @@ void setup() {
   fullScreen();
   player = new Player(-200, -200);
   //There is no real efficient way to load images. :( ;_;
+  
   pf1 = loadImage("f1.png");
   pf2 = loadImage("f2.png");
   pf3 = loadImage("f3.png");
@@ -294,7 +301,15 @@ void setup() {
   pn1 = loadImage("n1.png");
   pn2 = loadImage("n2.png");
   pn3 = loadImage("n3.png");
+  
   spike = loadImage("spike.png");
+  
+  spike_guy = loadImage("spike_guy.png");
+  bb1 = loadImage("bb1.png");
+  bb2 = loadImage("bb2.png");
+  bb3 = loadImage("bb3.png);
+  bb4 = loadImage("bb4.png");
+  
   keys.put(37, false);
   keys.put(38, false);
   keys.put(39, false);
