@@ -79,29 +79,63 @@ class Enemy {
 }
 
 class SpikeGuy extends Enemy {
-  public SpikeGuy(int x, int y, int spd) {
+  public SpikeGuy(int x, int y) {
     pos = new PVector(x, y);
-    image(spikeGuy, pos.x, pos.y, 40, 40);
   }
-  public SpikeGuy(int x, int y, int spd){
-    pos = new PVector(x, y);
-    image(spikeGuy, pos.x, pos.y, 40, 40);
-  }
-  public SpikeGuy(int x, int y){
-    pos = new PVector(x, y);
-    image(spikeGuy, pos.x, pos.y, 40, 40);
-  }
-  public SpikeGuy(int x, int y){
-    pos = new PVector(x, y);
-    spd = 1;
-    image(spikeGuy, pos.x, pos.y, 40, 40);
+  public void draw(){
+    image(spike_guy, pos.x, pos.y, 40, 40);
   }
 }
 
 class BloodyBanana extends Enemy {
-  public BloodyBananaa(int x, int y, int spd){
+  int imgTime = 20;
+  int curImg = 1;
+  int dir = 0;
+  int dirTime = 10;
+  public BloodyBanana(int x, int y){
     pos = new PVector(x, y);
-    image(bb1, pos.x, pos.y, 50, 50);
+
+  }
+  public void draw() {
+    if(imgTime > 0){
+      imgTime--;
+    }else if(curImg < 4){
+      curImg++;
+    }else{
+      curImg = 1;
+    }
+    if(curImg == 1){
+      image(bb1, pos.x, pos.y, 50, 50);
+    }
+    if(curImg == 2){
+      image(bb2, pos.x, pos.y, 50, 50);
+    }
+    if(curImg == 3){
+      image(bb3, pos.x, pos.y, 50, 50);
+    }
+    if(curImg == 4){
+      image(bb4, pos.x, pos.y, 50, 50);
+    }
+  }
+  public void update() {
+    if(dirTime > 0){
+      dirTime--;
+    }else{
+      dir = floor(random(0, 4));
+      dirTime = 10;
+    }
+    if(dir == 0){
+      pos.x -= 2;
+    }
+    if(dir == 1){
+      pos.y -= 2;
+    }
+    if(dir == 2){
+      pos.x += 2;
+    }
+    if(dir == 3){
+      pos.y += 2;
+    }
   }
 }
 
@@ -291,7 +325,7 @@ void setup() {
   fullScreen();
   player = new Player(-200, -200);
   //There is no real efficient way to load images. :( ;_;
-  
+
   pf1 = loadImage("f1.png");
   pf2 = loadImage("f2.png");
   pf3 = loadImage("f3.png");
@@ -301,15 +335,15 @@ void setup() {
   pn1 = loadImage("n1.png");
   pn2 = loadImage("n2.png");
   pn3 = loadImage("n3.png");
-  
+
   spike = loadImage("spike.png");
-  
+
   spike_guy = loadImage("spike_guy.png");
   bb1 = loadImage("bb1.png");
   bb2 = loadImage("bb2.png");
   bb3 = loadImage("bb3.png");
   bb4 = loadImage("bb4.png");
-  
+
   keys.put(37, false);
   keys.put(38, false);
   keys.put(39, false);
@@ -344,7 +378,7 @@ void draw() {
     noLoop();
   }
   popMatrix();
-  
+
   fill(0, 0, 0, 100);
   rectMode(CENTER);
   rect(width/2, 50, 100, 50);
@@ -352,5 +386,5 @@ void draw() {
   textAlign(CENTER, CENTER);
   text("Press esc to quit", width/2, 50);
   rectMode(CORNER);
-  
+
 }
