@@ -140,6 +140,8 @@ ArrayList<BloodyBanana> bloodyBananas = new ArrayList<BloodyBanana>();
 
 class Item {
   PVector pos;
+  int width;
+  int height;
 }
 
 class Coin extends Item {
@@ -147,6 +149,7 @@ class Coin extends Item {
   int cImgTime = 3;
   public Coin(int x, int y) {
     pos = new PVector(x, y);
+    width = height = 40;
   }
   public void draw() {
     if(cImgTime > 0){
@@ -263,6 +266,11 @@ class Player{
             pos.y = that.pos.y - height/2 - that.height/2;
           }
         }
+      }
+    }
+    for(Coin that: coins){
+      if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
+        //coins.remove(0);
       }
     }
   }
