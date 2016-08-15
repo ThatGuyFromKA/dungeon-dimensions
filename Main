@@ -76,6 +76,8 @@ ArrayList<Hole> holes = new ArrayList<Hole>();
 class Enemy {
   PVector pos;
   float dmg;
+  int width;
+  int height;
 }
 
 class SpikeGuy extends Enemy {
@@ -92,9 +94,60 @@ class BloodyBanana extends Enemy {
   int curImg = 1;
   int dir = 0;
   int dirTime = 10;
+  boolean[] canDir = {true, true, true, true};
   public BloodyBanana(int x, int y){
     pos = new PVector(x, y);
-
+    width = height = 50;
+  }
+  public void runCollisions() {
+    for(Block that: blocks) {
+      if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
+        if(abs(pos.x - that.pos.x)/(width + that.width) > abs(pos.y - that.pos.y)/(height + that.height)) {
+          if(pos.x > that.pos.x) {
+            canDir[0] = false;
+          }else{
+            canDir[0] = true;
+          }
+          if(pos.x < that.pos.x) {
+            canDir[2] = false;
+          }else{
+            canDir[2] = true;
+          }
+        }
+        else if(abs(pos.x - that.pos.x)/(width + that.width) < abs(pos.y - that.pos.y)/(height + that.height)) {
+          if(pos.y > that.pos.y) {
+            canDir[1] = false;
+          }else{
+            canDir[1] = true;
+          }
+          if(pos.y < that.pos.y) {
+            canDir[3] = false;
+          }else{
+            canDir[3] = true;
+          }
+        }
+      }
+    }
+    // for(Hole that: holes) {
+    //   if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
+    //     if(abs(pos.x - that.pos.x)/(width + that.width) > abs(pos.y - that.pos.y)/(height + that.height)) {
+    //       if(pos.x > that.pos.x) {
+    //         pos.x = that.pos.x + width/2 + that.width/2;
+    //       }
+    //       if(pos.x < that.pos.x) {
+    //         pos.x = that.pos.x - width/2 - that.width/2;
+    //       }
+    //     }
+    //     else if(abs(pos.x - that.pos.x)/(width + that.width) < abs(pos.y - that.pos.y)/(height + that.height)) {
+    //       if(pos.y > that.pos.y) {
+    //         pos.y = that.pos.y + height/2 + that.height/2;
+    //       }
+    //       if(pos.y < that.pos.y) {
+    //         pos.y = that.pos.y - height/2 - that.height/2;
+    //       }
+    //     }
+    //   }
+    // }
   }
   public void draw() {
     if(imgTime > 0){
@@ -120,16 +173,16 @@ class BloodyBanana extends Enemy {
       dir = floor(random(0, 4));
       dirTime = 10;
     }
-    if(dir == 0){
+    if(dir == 0 && canDir[0] == true){
       pos.x -= 2;
     }
-    if(dir == 1){
+    if(dir == 1 && canDir[1] == true){
       pos.y -= 2;
     }
-    if(dir == 2){
+    if(dir == 2 && canDir[2] == true){
       pos.x += 2;
     }
-    if(dir == 3){
+    if(dir == 3 && canDir[3] == true){
       pos.y += 2;
     }
   }
@@ -152,6 +205,7 @@ class Coin extends Item {
     pos = new PVector(x, y);
     width = height = 40;
   }
+
   public void draw() {
     if(cImgTime > 0){
       cImgTime -= 1;
@@ -450,6 +504,7 @@ void draw() {
   rect(width/2, 50, 100, 50);
   fill(255);
   textAlign(CENTER, CENTER);
+  textSize(12);
   text("Press esc to quit", width/2, 50);
   rectMode(CORNER);
 
