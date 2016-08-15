@@ -147,6 +147,7 @@ class Item {
 class Coin extends Item {
   int cImg = 1;
   int cImgTime = 3;
+  boolean isHit = false;
   public Coin(int x, int y) {
     pos = new PVector(x, y);
     width = height = 40;
@@ -185,6 +186,7 @@ class Player{
   int height;
   int health = 100;
   int hurtTimer = 0;
+  int score = 0;
   public Player() {
     pos = new PVector(200, 200);
     vel = new PVector(0, 0);
@@ -270,7 +272,10 @@ class Player{
     }
     for(Coin that: coins){
       if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
-        //coins.remove(0);
+        if(!that.isHit){
+          score += 1;
+        }
+        that.isHit = true;
       }
     }
   }
@@ -280,6 +285,9 @@ class Player{
     rect(pos.x - width/2, pos.y - height/2, width, height);
     fill(214, 17, 17);
     rect(-285, -285, health, 15);
+    fill(0);
+    textSize(15);
+    text("SCORE: " + score, -150, -275);
   }
   public void update() {
     vel.mult(0.9);
@@ -327,7 +335,7 @@ int[][][][] levels = {
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,6},
+      {0,0,0,0,0,0,0,0,6,0,0,0,0,0,6},
     },
     {
       {5,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -344,7 +352,7 @@ int[][][][] levels = {
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,6},
+      {0,0,0,0,0,0,0,0,6,0,0,0,0,0,6},
     }
   }
 };
@@ -427,7 +435,9 @@ void draw() {
     that.update();
   }
   for(Coin that: coins){
-    that.draw();
+    if(!that.isHit){
+      that.draw();
+    }
   }
   if(player.health <= 0){
     background(255, 0, 0);
