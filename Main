@@ -1,14 +1,23 @@
 
+// Import sounds and create sound variables(SoundFiles)
+import processing.sound.*;
+SoundFile coinSound, spikeSound, dieSound, walkSound;
+
+// A function for collision
 boolean colliding(float x1, float y1, int w1, int h1, float x2, float y2, int w2, int h2) {
   return abs(x1 - x2) * 2 < w1 + w2 && abs(y1 - y2) * 2 < h1 + h2;
 }
 
+// The array that stores the current "room"
 int[] curLevel = {0, 0};
 
+// Creates a ProcessingFont so that the font can be used in the game.
 PFont BIT;
 
+// Creates a lot of ProcessingImages so that images can be displayed in the game.
 PImage pf1, pf2, pf3, ps1, ps2, ps3, pn1, pn2, pn3, spike, spike_guy, bb1, bb2, cf, cl, cs, cr;
 
+// Creates a class ("Tile") to use as the basis for all the tiles in the game.
 class Tile {
   PVector pos;
   int width;
@@ -20,6 +29,7 @@ class Tile {
   }
 }
 
+// A "Block" class. An extension of the Tile class.
 class Block extends Tile {
   public Block(int x, int y, int w, int h) {
     pos = new PVector(x, y);
@@ -32,6 +42,7 @@ class Block extends Tile {
   }
 }
 
+// A "Spikes" class. Another extension of the Tile class.
 class Spikes extends Tile {
   public Spikes(int x, int y, int w, int h) {
     pos = new PVector(x, y);
@@ -48,6 +59,7 @@ class Spikes extends Tile {
   }
 }
 
+// A "Hole" class. Also an extension of the Tile class.
 class Hole extends Tile {
   public Hole(int x, int y, int w, int h) {
     pos = new PVector(x, y);
@@ -65,10 +77,12 @@ class Hole extends Tile {
   }
 }
 
+// Arrays to hold all the "Tile"s in the game.
 ArrayList<Block> blocks = new ArrayList<Block>();
 ArrayList<Spikes> spikes = new ArrayList<Spikes>();
 ArrayList<Hole> holes = new ArrayList<Hole>();
 
+// A base "Enemy" class.
 class Enemy {
   PVector pos;
   float dmg;
@@ -76,6 +90,8 @@ class Enemy {
   int height;
 }
 
+// A "SpikeGuy" extension of the Enemy class.
+// The Spike Guy is a floating spike that flies around randomly
 class SpikeGuy extends Enemy {
   public SpikeGuy(int x, int y) {
     pos = new PVector(x, y);
@@ -85,6 +101,8 @@ class SpikeGuy extends Enemy {
   }
 }
 
+// A "BloodyBanana" extension of the Enemy class.
+// The Bloody Banana is a roughly tiger-like monster that roams around randomly, attacking you when near.
 class BloodyBanana extends Enemy {
   int imgTime = 20;
   int curImg = 1;
@@ -164,15 +182,18 @@ class BloodyBanana extends Enemy {
   }
 }
 
+// Arrays to hold all the "Enemy"s in the game.
 ArrayList<SpikeGuy> spikeGuys = new ArrayList<SpikeGuy>();
 ArrayList<BloodyBanana> bloodyBananas = new ArrayList<BloodyBanana>();
 
+// A base "Item" class.
 class Item {
   PVector pos;
   int width;
   int height;
 }
 
+// A "Coin" "Item".
 class Coin extends Item {
   int cImg = 1;
   int cImgTime = 3;
@@ -207,22 +228,28 @@ class Coin extends Item {
   }
 }
 
+// A "HealthPack" "Item". For refilling player health.
 class HealthPack extends Item {}
 
+// Arrays to hold all the "Item"s in the game.
 ArrayList<Coin> coins = new ArrayList<Coin>();
 ArrayList<HealthPack> healthPacks = new ArrayList<HealthPack>();
 
+// The "Player" class. Be warned, it's quite large.
 class Player {
-  PVector pos;
-  PVector vel;
-  int img = 1;
-  int imgCat = 1;
-  int imgTime = 2;
-  int width;
-  int height;
-  int health = 100;
-  int hurtTimer = 0;
-  int score = 0;
+
+  PVector pos;// Player x and y
+  PVector vel;// Player x and y movement velocity
+  int img = 1;// The current player image displayed
+  int imgCat = 1;// The current player image category displayed
+  int imgTime = 2;// The time between image switching
+  int width;// The width of the player
+  int height;// The height of the player
+  int health = 100;// The players health or HP.
+  int hurtTimer = 0;// The timer that tells the program when the player can be invulnerable.
+  int score = 0;// The player's score.(Coins)
+
+  // Sets objects of the player's variables.
   public Player() {
     pos = new PVector(200, 200);
     vel = new PVector(0, 0);
@@ -235,57 +262,74 @@ class Player {
     width = 40;
     height = 60;
   }
+
+  // Collisions between the player and other items.
   public void runCollisions() {
+
+    // Player/Block collisions.
     for(Block that: blocks) {
+      // If the player is hitting the block
       if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
+        // And the player is hitting one of the sides
         if(abs(pos.x - that.pos.x)/(width + that.width) > abs(pos.y - that.pos.y)/(height + that.height)) {
-          vel.x = 0;
-          if(pos.x > that.pos.x) {
-            pos.x = that.pos.x + width/2 + that.width/2;
+          vel.x = 0;// Set the x velocity of the player to 0.
+          if(pos.x > that.pos.x) {// If the player x is greater than the block x.
+            pos.x = that.pos.x + width/2 + that.width/2;// Stop the player.
           }
-          if(pos.x < that.pos.x) {
-            pos.x = that.pos.x - width/2 - that.width/2;
+          if(pos.x < that.pos.x) {// If the player x is less than the block x.
+            pos.x = that.pos.x - width/2 - that.width/2;// Stop the player.
           }
         }
+        // (Or) And the player is hitting the top or bottom
         else if(abs(pos.x - that.pos.x)/(width + that.width) < abs(pos.y - that.pos.y)/(height + that.height)) {
-          vel.y = 0;
-          if(pos.y > that.pos.y) {
-            pos.y = that.pos.y + height/2 + that.height/2;
+          vel.y = 0;// Set the player y velocity to 0.
+          if(pos.y > that.pos.y) {// If the player y is greater than the block y.
+            pos.y = that.pos.y + height/2 + that.height/2;// Stop the player.
           }
-          if(pos.y < that.pos.y) {
-            pos.y = that.pos.y - height/2 - that.height/2;
+          if(pos.y < that.pos.y) {// If the player y is less than the block y.
+            pos.y = that.pos.y - height/2 - that.height/2;// Stop the player.
           }
         }
       }
     }
+
+    // Player/Hole collisions.
     for(Hole that: holes) {
+      // If the player and the hole are colliding.
       if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
+        // And the player is hitting the sides of the hole.
         if(abs(pos.x - that.pos.x)/(width + that.width) > abs(pos.y - that.pos.y)/(height + that.height)) {
-          vel.x = 0;
-          if(pos.x > that.pos.x) {
-            pos.x = that.pos.x + width/2 + that.width/2;
+          vel.x = 0;// set the player's x velocity to 0.
+          if(pos.x > that.pos.x) {// If the player x is greater than the hole x.
+            pos.x = that.pos.x + width/2 + that.width/2;// Stop the player.
           }
-          if(pos.x < that.pos.x) {
-            pos.x = that.pos.x - width/2 - that.width/2;
+          if(pos.x < that.pos.x) {// If the player x is less than the hole x.
+            pos.x = that.pos.x - width/2 - that.width/2;// Stop the player.
           }
         }
+        // (Or) And the player is hitting the top or bottom of the hole.
         else if(abs(pos.x - that.pos.x)/(width + that.width) < abs(pos.y - that.pos.y)/(height + that.height)) {
-          vel.y = 0;
-          if(pos.y > that.pos.y) {
-            pos.y = that.pos.y + height/2 + that.height/2;
+          vel.y = 0;// set the player y velocity to 0.
+          if(pos.y > that.pos.y) {// If the player y is greater than the hole y.
+            pos.y = that.pos.y + height/2 + that.height/2;// Stop the player.
           }
-          if(pos.y < that.pos.y) {
-            pos.y = that.pos.y - height/2 - that.height/2;
+          if(pos.y < that.pos.y) {// If the player y is less than the hole y.
+            pos.y = that.pos.y - height/2 - that.height/2;// Stop the player.
           }
         }
       }
     }
+
+    // Player/Spike collisions.
     for(Spikes that: spikes) {
+      // If the player is touching the spike.
       if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
-        if (hurtTimer == 0) {
-          health -= 15;
-          hurtTimer = 100;
+        if (hurtTimer == 0) {// And the player hasn't been hurt within the last 100 frames.
+          health -= 15;// take away some health from the player
+          hurtTimer = 100;// and tell the program that the player was just hurt.
+          spikeSound.play();// As well as playing the sound that plays when a player hits the spike.
         }
+        // Same as block and hole. Difference is that velocity is set to 9 instead.
         if(abs(pos.x - that.pos.x)/(width + that.width) > abs(pos.y - that.pos.y)/(height + that.height)) {
           if(pos.x > that.pos.x) {
             vel.x = 9;
@@ -308,18 +352,24 @@ class Player {
         }
       }
     }
+
+    // Player/Coin collisions.
     for(Coin that: coins){
+      // If the player is colliding with the coin.
       if(colliding(pos.x, pos.y, width, height, that.pos.x, that.pos.y, that.width, that.height)) {
-        if(!that.isHit){
-          score += 1;
+        if(!that.isHit){// And the coin hasn't been collected yet. :P
+          score += 1;// Increment the player's score
+          coinSound.play();// And play a coin sound.
         }
-        that.isHit = true;
+        that.isHit = true;// Tell the program the coin has been collected.
       }
     }
   }
+
+  // Draw the player.
   public void draw() {
     noStroke();
-    fill(255, 0, 0, (hurtTimer%20 < 10) ? 255 : 100);
+    // fill(255, 255, 255, (hurtTimer%20 < 10) ? 255 : 100);// Player color.
     imageMode(CORNER);
     if(img == 1 && imgCat == 1){
       image(pf1, pos.x - width/2, pos.y - height, width, height*1.5);
@@ -369,6 +419,16 @@ class Player {
     if(img == 3 && imgCat == 4){
       image(pn3, pos.x - width/2, pos.y - height, width, height*1.5);
     }
+    // rect(pos.x - width/2, pos.y - height, width, height*1.5);
+    // if(hurtTimer > 0){
+    //   for(int i = 0; i < pf1.width; i++){
+    //     for(int j = 0; j < pf1.height; j++){
+    //       pf1.set(i, j, color(255, 0, 0));
+    //     }
+    //   }
+    // }
+    //fill(255, 255, 255, hurtTimer);
+    //pf1.mask(rect(pos.x, pos.y, width, height));
     fill(214, 17, 17);
     rect(-285, -285, health, 15);
     fill(0);
@@ -380,6 +440,7 @@ class Player {
     vel.mult(0.9);
     pos.add(vel);
     if(keyPressed&&keyCode==38) {
+      // walkSound.loop(0.25);
       vel.y -= 0.1;
       pos.y -= 4;
       imgCat = 4;
@@ -396,6 +457,7 @@ class Player {
       vel.y = 0;
     }
     if(keyPressed&&keyCode==37) {
+      // walkSound.loop(0.25);
       vel.x -= 0.1;
       pos.x -= 4;
       imgCat = 3;
@@ -412,6 +474,7 @@ class Player {
       vel.x = 0;
     }
     if(keyPressed&&keyCode==40) {
+      // walkSound.loop(0.25);
       vel.y += 0.2;
       pos.y += 4;
       imgCat = 1;
@@ -428,6 +491,7 @@ class Player {
       vel.y = 0;
     }
     if(keyPressed&&keyCode==39) {
+      // walkSound.loop(0.25);
       vel.x += 0.1;
       pos.x += 4;
       imgCat = 2;
@@ -455,8 +519,10 @@ class Player {
   }
 }
 
+// An object of the "Player" class.
 Player player;
 
+// A 4D arrray of levels.
 int[][][][] levels = {
   {
     {
@@ -496,6 +562,7 @@ int[][][][] levels = {
   }
 };
 
+// A function that reads the 4D array and translates it into objects.
 void buildLevel(int level) {
   int lvl = floor(random(levels[level].length));
   for(int y = 0;y < levels[level][lvl].length;y++) {
@@ -512,14 +579,23 @@ void buildLevel(int level) {
   }
 }
 
+// The setup function.
 void setup() {
+  // Makes the game full screen.
   fullScreen();
+  // sets the player location.
   player = new Player(-200, -200);
 
+  // The sounds.
+  coinSound = new SoundFile(this, "coin.wav");
+  spikeSound = new SoundFile(this, "metal-small3.wav");
+  dieSound = new SoundFile(this, "spell.wav");
+  walkSound = new SoundFile(this, "cloth.wav");
+
+  // The font.
   BIT = createFont("PressStart2P-Regular.ttf", 25);
 
-  //There is no real efficient way to load images. :( ;_;
-
+  // The player images.
   pf1 = loadImage("f1.png");
   pf2 = loadImage("f2.png");
   pf3 = loadImage("f3.png");
@@ -530,55 +606,109 @@ void setup() {
   pn2 = loadImage("n2.png");
   pn3 = loadImage("n3.png");
 
+  // The item/tile images.
   spike = loadImage("spike.png");
   cf = loadImage("coin_f.png");
   cl = loadImage("coin_l.png");
   cr = loadImage("coin_r.png");
   cs = loadImage("coin_s.png");
 
+  // The enemy images.
   spike_guy = loadImage("spike_guy.png");
   bb1 = loadImage("bb1.png");
   bb2 = loadImage("bb2.png");
 
+  // Reads a level
   buildLevel(0);
+  // Makes the images look good.
   noSmooth();
 }
 
+// The draw function. For animation.
 void draw() {
+
+  // A black background for the game.
   background(0);
+
+  //Scaling
   pushMatrix();
-  translate(width/2, height/2);
-  scale(0.1);
-  scale(0.1);
-  int s = min(width/8, height/6);
-  scale(s);
-  fill(255);
-  noStroke();
-  rect(-300, -300, 600, 600);
+  translate(width/2, height/2);// Centers the screen
+  scale(0.1);// shrinks the screen to 1/10 of the size.
+  scale(0.1);// shrinks the screen to 1/10 again (even smaller).
+  int s = min(width/8, height/6);// creates a variable that sets the final size of the screen.
+  scale(s);// implements the variable that sets the final size of the screen. (screen is now fullscreen).
+
+  fill(255);//White Background Color
+  noStroke();//Gets rid of ugly lines.
+  rect(-300, -300, 600, 600);// White Background
+
+  // Draws block objects.
   for(Block that: blocks) {
     that.draw();
   }
+
+  // Draws spike objects.
   for(Spikes that: spikes) {
     that.draw();
   }
+
+  // Draws hole objects.
   for(Hole that: holes) {
     that.draw();
   }
+
+  // Draws Spike Guy objects.
   for(SpikeGuy that: spikeGuys){
     that.draw();
   }
+
+  // Draws and runs Bloody Banana objects.
   for(BloodyBanana that: bloodyBananas){
     that.draw();
     that.runCollisions();
     that.update();
   }
+
+  // Draws Coin objects (if they haven't been collected yet).
   for(Coin that: coins){
     if(!that.isHit){
       that.draw();
     }
   }
+
+  // Draws the player.
   player.display();
+
+  popMatrix();
+
+  // "Press esc to quit" box.
+  fill(0, 0, 0, 100);
+  rectMode(CENTER);
+  rect(width/2, 50, 100, 50);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(10);
+  text("Press esc\nto quit", width/2, 50);
+  rectMode(CORNER);
+
+  fill(255);
+  textSize(75);
+  textAlign(CENTER, CENTER);
+  textLeading(90);
+  text("D\nU\nN\nG\nE\nO\nN", 125, height/2);
+  // textLeading(10*8);
+  text("D\nI\nM\nE\nN\nS\nI\nO\nN\nS", width-125, height/2);
+
+  pushMatrix();
+  translate(width/2, height/2);// Centers the screen
+  scale(0.1);// shrinks the screen to 1/10 of the size.
+  scale(0.1);// shrinks the screen to 1/10 again (even smaller).
+  // int s = min(width/8, height/6);// creates a variable that sets the final size of the screen.
+  scale(s);// implements the variable that sets the final size of the screen. (screen is now fullscreen).
+
+  // Game over screen
   if(player.health <= 0){
+    dieSound.play();
     background(255, 0, 0);
     fill(0);
     textSize(75);
@@ -589,15 +719,6 @@ void draw() {
     text("PRESS ESCAPE", 0, 200);
     noLoop();
   }
-  popMatrix();
 
-  fill(0, 0, 0, 100);
-  rectMode(CENTER);
-  rect(width/2, 50, 100, 50);
-  fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(10);
-  text("Press esc\nto quit", width/2, 50);
-  rectMode(CORNER);
-
+  popMatrix();// For the scaling?
 }
