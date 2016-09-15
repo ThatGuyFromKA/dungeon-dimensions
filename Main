@@ -8,6 +8,13 @@ boolean colliding(float x1, float y1, int w1, int h1, float x2, float y2, int w2
   return abs(x1 - x2) * 2 < w1 + w2 && abs(y1 - y2) * 2 < h1 + h2;
 }
 
+// The current gamescene. Menu, Paused, Game.
+String scene = "Menu";
+
+// Menu Flashing Text variables
+int flashTime = 25;
+color flashCol = color(255);
+
 // The array that stores the current "room"
 int[] curLevel = {0, 0};
 
@@ -229,7 +236,7 @@ class Coin extends Item {
 }
 
 // A "HealthPack" "Item". For refilling player health.
-class HealthPack extends Item {}
+class HealthPack extends Item {/*PLACEHOLDER*/}
 
 // Arrays to hold all the "Item"s in the game.
 ArrayList<Coin> coins = new ArrayList<Coin>();
@@ -564,16 +571,16 @@ int[][][][] levels = {
 
 // A function that reads the 4D array and translates it into objects.
 void buildLevel(int level) {
-  int lvl = floor(random(levels[level].length));
-  for(int y = 0;y < levels[level][lvl].length;y++) {
-    for(int x = 0;x < levels[level][lvl][y].length;x++) {
-      switch(levels[level][lvl][y][x]) {
-        case 1: blocks.add(new Block(x * 40 - 280, y * 40 - 280)); break;
-        case 2: spikes.add(new Spikes(x * 40 - 280, y * 40 - 280)); break;
-        case 3: holes.add(new Hole(x * 40 - 280, y * 40 - 280)); break;
-        case 4: spikeGuys.add(new SpikeGuy(x * 40 - 280, y * 40 - 280)); break;
-        case 5: bloodyBananas.add(new BloodyBanana(x * 40 - 280, y * 40 - 280)); break;
-        case 6: coins.add(new Coin(x * 40 - 280, y * 40 - 280)); break;
+  int dimension = floor(random(levels[level].length)); // Chooses a random level-layer
+  for(int y = 0;y < levels[level][dimension].length;y++) {// Iterate through the level's dimension's arrays
+    for(int x = 0;x < levels[level][dimension][y].length;x++) { // Iterate through each array's items.
+      switch(levels[level][dimension][y][x]) {
+        case 1: blocks.add(new Block(x * 40 - 280, y * 40 - 280)); break; // Add blocks
+        case 2: spikes.add(new Spikes(x * 40 - 280, y * 40 - 280)); break; // Add spikes
+        case 3: holes.add(new Hole(x * 40 - 280, y * 40 - 280)); break; // Add holes
+        case 4: spikeGuys.add(new SpikeGuy(x * 40 - 280, y * 40 - 280)); break; // Add Spike Guys
+        case 5: bloodyBananas.add(new BloodyBanana(x * 40 - 280, y * 40 - 280)); break; // Add Bloody Bananas
+        case 6: coins.add(new Coin(x * 40 - 280, y * 40 - 280)); break; // Add coins
       }
     }
   }
@@ -627,9 +634,6 @@ void setup() {
 // The draw function. For animation.
 void draw() {
 
-  // A black background for the game.
-  background(0);
-
   //Scaling
   pushMatrix();
   translate(width/2, height/2);// Centers the screen
@@ -638,87 +642,123 @@ void draw() {
   int s = min(width/8, height/6);// creates a variable that sets the final size of the screen.
   scale(s);// implements the variable that sets the final size of the screen. (screen is now fullscreen).
 
-  fill(255);//White Background Color
-  noStroke();//Gets rid of ugly lines.
-  rect(-300, -300, 600, 600);// White Background
+  switch(scene){
+    case "Menu": {
 
-  // Draws block objects.
-  for(Block that: blocks) {
-    that.draw();
-  }
+      background(0, 0, 0);
 
-  // Draws spike objects.
-  for(Spikes that: spikes) {
-    that.draw();
-  }
+      fill(255);
+      textAlign(CENTER, CENTER);
+      textFont(BIT);
+      textSize(width/24);
+      text("DUNGEON\nDIMENSIONS", 0, -100);
 
-  // Draws hole objects.
-  for(Hole that: holes) {
-    that.draw();
-  }
+      fill(flashCol);
+      textSize(width/42);
+      text("PRESS ENTER TO START", 0, 100);
 
-  // Draws Spike Guy objects.
-  for(SpikeGuy that: spikeGuys){
-    that.draw();
-  }
+      if(flashTime>0){
+        flashTime--;
+      }else if(flashCol == color(255)){
+        flashCol = color(0);
+        flashTime = 25;
+      }else{
+        flashCol = color(255, 255, 255);
+        flashTime = 25;
+      }
+      if(keyPressed && key == ENTER){
+        scene = "Game";
+      }
+      break;
+    }
+    case "Paused": {break;}
+    case "Game": {
+      // A black background for the game.
+      background(0);
 
-  // Draws and runs Bloody Banana objects.
-  for(BloodyBanana that: bloodyBananas){
-    that.draw();
-    that.runCollisions();
-    that.update();
-  }
+      fill(255);//White Background Color
+      noStroke();//Gets rid of ugly lines.
+      rect(-300, -300, 600, 600);// White Background
 
-  // Draws Coin objects (if they haven't been collected yet).
-  for(Coin that: coins){
-    if(!that.isHit){
-      that.draw();
+      // Draws block objects.
+      for(Block that: blocks) {
+        that.draw();
+      }
+
+      // Draws spike objects.
+      for(Spikes that: spikes) {
+        that.draw();
+      }
+
+      // Draws hole objects.
+      for(Hole that: holes) {
+        that.draw();
+      }
+
+      // Draws Spike Guy objects.
+      for(SpikeGuy that: spikeGuys){
+        that.draw();
+      }
+
+      // Draws and runs Bloody Banana objects.
+      for(BloodyBanana that: bloodyBananas){
+        that.draw();
+        that.runCollisions();
+        that.update();
+      }
+
+      // Draws Coin objects (if they haven't been collected yet).
+      for(Coin that: coins){
+        if(!that.isHit){
+          that.draw();
+        }
+      }
+
+      // Draws the player.
+      player.display();
+
+      popMatrix();
+
+      // "Press esc to quit" box.
+      fill(0, 0, 0, 100);
+      rectMode(CENTER);
+      rect(width/2, 50, 100, 50);
+      fill(255);
+      textAlign(CENTER, CENTER);
+      textSize(10);
+      text("Press esc\nto quit", width/2, 50);
+      rectMode(CORNER);
+
+      pushMatrix();
+      translate(width/2, height/2);// Centers the screen
+      scale(0.1);// shrinks the screen to 1/10 of the size.
+      scale(0.1);// shrinks the screen to 1/10 again (even smaller).
+      // int s = min(width/8, height/6);// creates a variable that sets the final size of the screen.
+      scale(s);// implements the variable that sets the final size of the screen. (screen is now fullscreen).
+
+      // Game over screen
+      if(player.health <= 0){
+        scene = "GameOver";
+      }
+
+      break;
+    }
+    case "GameOver": {
+
+      dieSound.play();
+      background(255, 0, 0);
+      fill(0);
+      textSize(75);
+      text("YOU DIED", 0, -200);
+      textSize(20);
+      text("YOUR FINAL SCORE WAS: " + player.score, 0, 0);
+      textSize(15);
+      text("PRESS ESCAPE", 0, 200);
+      noLoop();
+
+      break;
     }
   }
 
-  // Draws the player.
-  player.display();
-
   popMatrix();
-
-  // "Press esc to quit" box.
-  fill(0, 0, 0, 100);
-  rectMode(CENTER);
-  rect(width/2, 50, 100, 50);
-  fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(10);
-  text("Press esc\nto quit", width/2, 50);
-  rectMode(CORNER);
-
-  fill(255);
-  textSize(75);
-  textAlign(CENTER, CENTER);
-  textLeading(90);
-  text("D\nU\nN\nG\nE\nO\nN", 125, height/2);
-  // textLeading(10*8);
-  text("D\nI\nM\nE\nN\nS\nI\nO\nN\nS", width-125, height/2);
-
-  pushMatrix();
-  translate(width/2, height/2);// Centers the screen
-  scale(0.1);// shrinks the screen to 1/10 of the size.
-  scale(0.1);// shrinks the screen to 1/10 again (even smaller).
-  // int s = min(width/8, height/6);// creates a variable that sets the final size of the screen.
-  scale(s);// implements the variable that sets the final size of the screen. (screen is now fullscreen).
-
-  // Game over screen
-  if(player.health <= 0){
-    dieSound.play();
-    background(255, 0, 0);
-    fill(0);
-    textSize(75);
-    text("YOU DIED", 0, -200);
-    textSize(20);
-    text("YOUR FINAL SCORE WAS: " + player.score, 0, 0);
-    textSize(15);
-    text("PRESS ESCAPE", 0, 200);
-    noLoop();
-  }
-
-  popMatrix();// For the scaling?
 }
