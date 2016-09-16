@@ -16,13 +16,13 @@ int flashTime = 25;
 color flashCol = color(255);
 
 // The array that stores the current "room"
-int[] curLevel = {0, 0};
+int[] curLevel = {0, 0};// Level, Dimension
 
 // Creates a ProcessingFont so that the font can be used in the game.
-PFont BIT;
+PFont BIT;//This is actually Press Start 2P
 
 // Creates a lot of ProcessingImages so that images can be displayed in the game.
-PImage pf1, pf2, pf3, ps1, ps2, ps3, pn1, pn2, pn3, spike, spike_guy, bb1, bb2, cf, cl, cs, cr;
+PImage pf1, pf2, pf3, ps1, ps2, ps3, pn1, pn2, pn3, spike, spike_guy, spike_guy_l, spike_guy_r, spike_guy_d, bb1, bb2, cf, cl, cs, cr;
 
 // Creates a class ("Tile") to use as the basis for all the tiles in the game.
 class Tile {
@@ -58,7 +58,7 @@ class Spikes extends Tile {
   }
   public Spikes(int x, int y) {
     pos = new PVector(x, y);
-    width = height = 40;
+    width = height = 42;
   }
   public void draw() {
     imageMode(CENTER);
@@ -84,10 +84,14 @@ class Hole extends Tile {
   }
 }
 
+// A "Portal" class. I think you already know it's an extension of the tile class.
+class Portal extends Tile {/*PLACEHOLDER*/}
+
 // Arrays to hold all the "Tile"s in the game.
 ArrayList<Block> blocks = new ArrayList<Block>();
 ArrayList<Spikes> spikes = new ArrayList<Spikes>();
 ArrayList<Hole> holes = new ArrayList<Hole>();
+ArrayList<Portal> portals = new ArrayList<Portal>();
 
 // A base "Enemy" class.
 class Enemy {
@@ -100,11 +104,29 @@ class Enemy {
 // A "SpikeGuy" extension of the Enemy class.
 // The Spike Guy is a floating spike that flies around randomly
 class SpikeGuy extends Enemy {
+
+   int img = 0;
+   int imgTime = 4;
+
   public SpikeGuy(int x, int y) {
     pos = new PVector(x, y);
   }
-  public void draw(){
-    image(spike_guy, pos.x, pos.y, 40, 40);
+  public void draw() {
+    switch(img) {
+      case 0: image(spike_guy, pos.x, pos.y, 40, 40); break;
+      case 1: image(spike_guy_r, pos.x, pos.y, 40, 40); break;
+      case 2: image(spike_guy_d, pos.x, pos.y, 40, 40); break;
+      case 3: image(spike_guy_l, pos.x, pos.y, 40, 40); break;
+    }
+    if(imgTime > 0) {
+      imgTime--;
+    } else if(img < 3) {
+      img++;
+      imgTime = 4;
+    } else {
+      img = 0;
+      imgTime =  4;
+    }
   }
 }
 
@@ -531,9 +553,11 @@ Player player;
 
 // A 4D arrray of levels.
 int[][][][] levels = {
+  // Level 1
   {
+    // Dimension 1
     {
-      {5,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {6,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,1,1,0,0,0,0,0,0},
@@ -547,10 +571,11 @@ int[][][][] levels = {
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0,6,0,0,0,0,0,6},
+      {0,0,0,0,0,0,0,0,6,0,0,4,0,0,6},
     },
+    // Dimension 2
     {
-      {5,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+      {6,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -559,7 +584,7 @@ int[][][][] levels = {
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,1,1,1,2,0,0,0,0,0,0,0},
       {0,0,0,0,1,0,0,1,0,0,0,0,0,0,0},
-      {0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
+      {0,0,0,0,1,0,0,0,0,0,0,4,0,0,0},
       {0,0,0,0,2,1,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -622,6 +647,9 @@ void setup() {
 
   // The enemy images.
   spike_guy = loadImage("spike_guy.png");
+  spike_guy_l = loadImage("spike_guy_l.png");
+  spike_guy_d = loadImage("spike_guy_d.png");
+  spike_guy_r = loadImage("spike_guy_r.png");
   bb1 = loadImage("bb1.png");
   bb2 = loadImage("bb2.png");
 
@@ -761,4 +789,5 @@ void draw() {
   }
 
   popMatrix();
+
 }
